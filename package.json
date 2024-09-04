@@ -1,6 +1,11 @@
 {
   "name": "functions",
   "version": "1.0.0",
+  "author": "Josh Spicer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joshspicer/functions"
+  },
   "description": "",
   "scripts": {
     "build": "tsc",
