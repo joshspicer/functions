@@ -76,7 +76,7 @@ function parseAndValidateParams(queryParams: URLSearchParams) {
 }
 
 function handleGet(params: HeartBoxRequest, context: InvocationContext/*, tableClient: TableClient*/): HttpResponseInit {
-    const {deviceId, verbose} = params;
+    const { deviceId, verbose } = params;
 
     const device0 = context.extraInputs.get(device0Input) as StateTransition[];
     const device1 = context.extraInputs.get(device1Input) as StateTransition[];
@@ -86,7 +86,6 @@ function handleGet(params: HeartBoxRequest, context: InvocationContext/*, tableC
 
     let device0LastState: StateTransition | undefined = undefined;
     for (const state of device0) {
-        context.debug(`Processing for 0 -> ${state}`)
         if (device0LastState === undefined || new Date(state.RowKey) > new Date(device0LastState.RowKey)) {
             device0LastState = state;
         }
@@ -94,52 +93,59 @@ function handleGet(params: HeartBoxRequest, context: InvocationContext/*, tableC
 
     let device1LastState: StateTransition | undefined = undefined;
     for (const state of device1) {
-        context.debug(`Processing for 1 -> ${state}`)
         if (device1LastState === undefined || new Date(state.RowKey) > new Date(device1LastState.RowKey)) {
             device1LastState = state;
         }
     }
 
-    const transitions = {transitions: {device0, device1 }};
-    
+    const transitions = { transitions: { device0, device1 } };
+
     const self = deviceId === 0 ? device0LastState : device1LastState;
     const peer = deviceId === 0 ? device1LastState : device0LastState;
     context.log(`[device${deviceId}] Polled self=${self.Status}, peer=${peer.Status}`);
 
     const selfAgo = moment(self.RowKey).fromNow();
     const peerAgo = moment(peer.RowKey).fromNow();
-    context.log(`[device${deviceId}] Self was set on '${self.RowKey}' (${selfAgo} ago)`);
-    context.log(`[device${deviceId}] Peer was set on '${peer.RowKey}' (${peerAgo} ago)`);
+    context.log(`[device${deviceId}] Self was set on '${self.RowKey}' (${selfAgo})`);
+    context.log(`[device${deviceId}] Peer was set on '${peer.RowKey}' (${peerAgo})`);
 
     return verbose ? {
         status: 200,
         jsonBody: {
             ...transitions,
-            self,
-            peer,
+            self: {
+                ...self,
+                lastChanged: selfAgo,
+            },
+            peer: {
+                ...peer,
+                lastChanged: peerAgo
+            }
         },
-    } : { status: 200, body: `${self.Status},${peer.Status}`}
+    } : { status: 200, body: `${self.Status},${peer.Status}` }
 }
 
 function handlePut(params: HeartBoxRequest, context: InvocationContext/*, tableClient: TableClient*/): HttpResponseInit {
     // Set my peer's heartbox to 'on'
+    // TODO: Reject if peer is already on
     const peerDeviceId = getPeerDeviceId(params.deviceId);
     context.extraOutputs.set(tableOutput, {
         PartitionKey: peerDeviceId.toString(),
         RowKey: new Date().toISOString(),
         Status: 'on',
     });
-    
+
     return {
-            status: 200,
-            jsonBody: {
-                message: `Device ${params.deviceId} set peer's (${peerDeviceId}) state to 'on'`
+        status: 200,
+        jsonBody: {
+            message: `Device '${params.deviceId}' set peer '${peerDeviceId}' state to 'on'`
         }
     };
 }
 
 function handleDelete(params: HeartBoxRequest, context: InvocationContext/*, tableClient: TableClient*/): HttpResponseInit {
     // Set my peer's heartbox to 'off
+    // TODO: Reject if peer is already off
     const peerDeviceId = getPeerDeviceId(params.deviceId);
     context.extraOutputs.set(tableOutput, {
         PartitionKey: peerDeviceId.toString(),
@@ -150,7 +156,7 @@ function handleDelete(params: HeartBoxRequest, context: InvocationContext/*, tab
     return {
         status: 200,
         jsonBody: {
-            message: `Device ${params.deviceId} set peer's (${peerDeviceId}) state to 'off'`
+            message: `Device '${params.deviceId}' set peer '${peerDeviceId}' state to 'off'`
         }
     };
 }
