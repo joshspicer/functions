@@ -28,9 +28,6 @@ function getPeerDeviceId(myDeviceId: number) {
 
 export async function heartbox(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
-
-    // const connectionString = process.env.AzureWebJobsStorage;
-    // const tableClient = TableClient.fromConnectionString(connectionString, 'heartbox');
     try {
         const params = parseAndValidateParams(request.query);
         switch (request.method.toUpperCase()) {
@@ -49,7 +46,7 @@ export async function heartbox(request: HttpRequest, context: InvocationContext)
                     throw new Error(`Invalid 'self' value`);
                 }
                 if (params.peer !== null && !valid_values.includes(params.peer)) {
-                    throw new Error(`Invalid 's' value`);
+                    throw new Error(`Invalid 'peer' value`);
                 }
 
                 return handlePut(params, context);
@@ -95,7 +92,7 @@ function parseAndValidateParams(queryParams: URLSearchParams) {
     };
 }
 
-function handleGet(params: HeartBoxRequest, context: InvocationContext/*, tableClient: TableClient*/): HttpResponseInit {
+function handleGet(params: HeartBoxRequest, context: InvocationContext): HttpResponseInit {
     const { deviceId, verbose } = params;
 
     const device0 = context.extraInputs.get(device0Input) as StateTransition[];

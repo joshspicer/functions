@@ -1,4 +1,9 @@
+# (c) 2024 Josh Spicer <hello@joshspicer.com>
+# https://joshspicer.com/heartbox
+#
 # compile with esphome 2024.4.2
+# https://github.com/esphome/esphome-docs/blob/2024.4.2/components/http_request.rst#id12
+
 esphome:
   name: heartbox-<TODO>
 
@@ -45,8 +50,6 @@ interval:
       - http_request.get:
           id: "send_request"
           url: https://<TODO>/api/heartbox?deviceId=<TODO>
-          # capture_response: True
-          # max_response_buffer_size: 10
           verify_ssl: False
           headers: 
             x-functions-key: "<TODO>"
