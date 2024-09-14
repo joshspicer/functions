@@ -1,0 +1,80 @@
+# compile with esphome 2024.4.2
+esphome:
+  name: heartbox-<TODO>
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "<TODO>"
+
+ota:
+  password: "<TODO>"
+
+wifi:
+  ssid: "<TODO>"
+  password: "<TODO>"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Heartbox"
+    password: "<TODO>"
+
+captive_portal:
+
+# Define the LED on pin 2
+output:
+  - platform: gpio
+    pin: GPIO2
+    id: led_output
+
+# HTTP Request component
+http_request:
+  id: "send_request"
+  # verify_ssl: False
+  timeout: 10s
+
+# Make HTTP request and process the response
+interval:
+  - interval: 60s
+    then:
+      - http_request.get:
+          id: "send_request"
+          url: https://<TODO>/api/heartbox?deviceId=<TODO>
+          # capture_response: True
+          # max_response_buffer_size: 10
+          verify_ssl: False
+          headers: 
+            x-functions-key: "<TODO>"
+          on_response: 
+            then:
+              - logger.log:
+                  format: 'Response status: %d, Duration: %u ms'
+                  args: 
+                    - status_code
+                    - duration_ms
+              - lambda: |-
+                  auto body = id(send_request).get_string();
+                  ESP_LOGD("Reponse Lambda:", "%s", body);
+
+                  json::parse_json(body, [](JsonObject root) {
+                    auto self = root["self"].as<char*>();
+                    auto peer = root["peer"].as<char*>();
+
+                    ESP_LOGD("Reponse Lambda:", "self: %s, peer: %s", self, peer);
+
+                    if (strcmp(peer, "on") == 0) {
+                      // Turn on LED
+                      ESP_LOGD("Handle Lambda:", "peer=on");
+                      id(led_output).turn_on();
+                    } else {
+                      // Turn off LED
+                      ESP_LOGD("Handle Lambda:", "Off");
+                      id(led_output).turn_off();
+                    }
+                  });
+

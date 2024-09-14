@@ -15,6 +15,11 @@ interface HeartBoxRequest {
     verbose?: boolean;
 }
 
+interface HeartBoxPut extends HeartBoxRequest {
+    self: string | null;
+    peer: string | null;
+}
+
 // The device always sends THEIR deviceId
 // Eg: Box 1 with append ?deviceId=1 to every request
 function getPeerDeviceId(myDeviceId: number) {
@@ -34,11 +39,20 @@ export async function heartbox(request: HttpRequest, context: InvocationContext)
                 // If ?verbose=true is set, also return a list of all past states for both participants
                 return handleGet(params, context);
             case 'PUT':
-                // Sets the peer's heartbox to 'on'
+
+                if ((params.self !== null && params.peer !== null) || (params.self === null && params.peer === null)) {
+                    throw new Error(`Invalid request. Must set either 'self' or 'peer', but not both.`);
+                }
+
+                const valid_values = ['on', 'off'];
+                if (params.self !== null && !valid_values.includes(params.self)) {
+                    throw new Error(`Invalid 'self' value`);
+                }
+                if (params.peer !== null && !valid_values.includes(params.peer)) {
+                    throw new Error(`Invalid 's' value`);
+                }
+
                 return handlePut(params, context);
-            case 'DELETE':
-                // Sets the peer's heartbox to 'off'
-                return handleDelete(params, context);
             default:
                 return {
                     status: 405,
@@ -65,6 +79,10 @@ function parseAndValidateParams(queryParams: URLSearchParams) {
     const deviceId = parseInt(queryParams.get('deviceId'));
     const verbose = queryParams.get('verbose') === 'true'
 
+    // 'self' and 'peer' are used for a PUT
+    const self: string | null = queryParams.get('self');
+    const peer: string | null = queryParams.get('peer');
+
     if (isNaN(deviceId)) {
         throw new Error('Invalid deviceId (NaN)');
     }
@@ -72,6 +90,8 @@ function parseAndValidateParams(queryParams: URLSearchParams) {
     return {
         deviceId,
         verbose,
+        self,
+        peer
     };
 }
 
@@ -122,44 +142,42 @@ function handleGet(params: HeartBoxRequest, context: InvocationContext/*, tableC
                 lastChanged: peerAgo
             }
         },
-    } : { status: 200, body: `${self.Status},${peer.Status}` }
+    } : { status: 200, jsonBody: { self: self.Status, peer: peer.Status } }
 }
 
-function handlePut(params: HeartBoxRequest, context: InvocationContext/*, tableClient: TableClient*/): HttpResponseInit {
-    // Set my peer's heartbox to 'on'
-    // TODO: Reject if peer is already on
-    const peerDeviceId = getPeerDeviceId(params.deviceId);
-    context.extraOutputs.set(tableOutput, {
-        PartitionKey: peerDeviceId.toString(),
-        RowKey: new Date().toISOString(),
-        Status: 'on',
-    });
+function handlePut(params: HeartBoxPut, context: InvocationContext): HttpResponseInit {
+    
+    const { self, peer, deviceId } = params;
+
+    let res = {};
+
+    if (self !== null) {
+        context.log(`[device${deviceId}] Setting self to '${self}'`);
+        context.extraOutputs.set(tableOutput, {
+            PartitionKey: deviceId.toString(),
+            RowKey: new Date().toISOString(),
+            Status: self,
+        });
+        res = { ...res, self }
+    }
+
+    if (peer !== null) {
+        context.log(`[device${deviceId}] Setting peer to '${peer}'`);
+        const peerDeviceId = getPeerDeviceId(params.deviceId);
+        context.extraOutputs.set(tableOutput, {
+            PartitionKey: peerDeviceId.toString(),
+            RowKey: new Date().toISOString(),
+            Status: peer,
+        });
+        res = { ...res, peer }
+    }
 
     return {
         status: 200,
-        jsonBody: {
-            message: `Device '${params.deviceId}' set peer '${peerDeviceId}' state to 'on'`
-        }
+        jsonBody: res
     };
 }
 
-function handleDelete(params: HeartBoxRequest, context: InvocationContext/*, tableClient: TableClient*/): HttpResponseInit {
-    // Set my peer's heartbox to 'off
-    // TODO: Reject if peer is already off
-    const peerDeviceId = getPeerDeviceId(params.deviceId);
-    context.extraOutputs.set(tableOutput, {
-        PartitionKey: peerDeviceId.toString(),
-        RowKey: new Date().toISOString(),
-        Status: 'off',
-    });
-
-    return {
-        status: 200,
-        jsonBody: {
-            message: `Device '${params.deviceId}' set peer '${peerDeviceId}' state to 'off'`
-        }
-    };
-}
 
 const device0Input = input.table({
     tableName: 'heartbox',
@@ -179,7 +197,7 @@ const tableOutput = output.table({
 });
 
 app.http('heartbox', {
-    methods: ['GET', 'PUT', 'DELETE'],
+    methods: ['GET', 'PUT'],
     authLevel: 'function',
     extraInputs: [device0Input, device1Input],
     extraOutputs: [tableOutput],
