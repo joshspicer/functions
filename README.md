@@ -6,6 +6,7 @@ My collection of various [Azure Functions](https://learn.microsoft.com/en-us/azu
 
 | Name      | Details      |
 | ------------- | ------------- |
+| [`index`](src/functions/index.ts) | Root function that is terminal-friendly. |
 | [`heartbox`](src/functions/heartbox.ts) | A new implementation for my [heartbox](https://joshspicer.com/heartbox) IoT project |
 
 ## Build and Deploy
