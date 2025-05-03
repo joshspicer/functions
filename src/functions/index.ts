@@ -95,5 +95,6 @@ ${green}$ curl https://joshspicer.com/feed.xml${reset}      ${cyan}Get the RSS F
 app.http('index', {
     methods: ['GET'],
     authLevel: 'anonymous', // public
+    route: '/',
     handler: index
 });
