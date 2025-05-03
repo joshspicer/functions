@@ -86,7 +86,7 @@ ${cyan}About:${reset}
 👋 I'm Josh Spicer, a software engineer at Microsoft.
 
 ${cyan}Legend:${reset}
-${green}$ curl spicer.dev${reset}           ${cyan}Get this page${reset}
+${green}$ curl spicer.dev${reset}                           ${cyan}Get this page${reset}
 ${green}$ curl https://joshspicer.com/feed.xml${reset}      ${cyan}Get the RSS Feed${reset}
 
 `;
