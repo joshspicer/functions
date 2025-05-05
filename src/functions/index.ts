@@ -93,7 +93,7 @@ function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
     const yellow = "\x1b[33m";
     const green = "\x1b[32m";
     const magenta = "\x1b[35m";
-
+    
     // ASCII art logo similar to the example in the image
     const asciiArt = `${yellow}
     _           _                             
@@ -106,29 +106,42 @@ function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
  |__/ 
 ${reset}`;
 
-    // Create formatted box with information
-    const infoBoxes = `
-${cyan}┌─About───────────────────────────────┐
-│                                     │
-│ 👋 I'm Josh Spicer                  │
-│                                     │
-└─────────────────────────────────────┘${reset}
-`;
+    // Helper function to create consistent boxes
+    function createBox(title: string, content: string[], color: string, width = 35): string {
+        const boxTop = `${color}┌─${title}${'─'.repeat(width - title.length - 2)}┐`;
+        const boxBottom = `└${'─'.repeat(width - 1)}┘${reset}`;
+        const paddedContent = content.map(line => 
+            `${color}│ ${line}${' '.repeat(Math.max(0, width - line.length - 2))}│${reset}`
+        );
+        
+        return [
+            boxTop,
+            `${color}│${' '.repeat(width - 1)}│${reset}`,
+            ...paddedContent,
+            `${color}│${' '.repeat(width - 1)}│${reset}`,
+            boxBottom
+        ].join('\n');
+    }
 
-    // Spotify information
-    const spotifyBox = spotifyData ? `
-${magenta}┌─Now Playing on Spotify───────────┐
-│                                   │
-│ ${spotifyData.isPlaying ? '▶️ Currently playing' : '⏸️ Last played'}:            │
-│ "${spotifyData.songName}" by ${spotifyData.artistName}${' '.repeat(Math.max(0, 30 - (spotifyData.songName.length + spotifyData.artistName.length + 5)))}│
-│                                   │
-└───────────────────────────────────┘${reset}
-` : '';
+    // About box
+    const aboutBox = createBox("About", ["👋 I'm Josh Spicer"], cyan);
+    
+    // Spotify box
+    const spotifyBox = spotifyData ? createBox(
+        "Now Playing on Spotify",
+        [
+            `${spotifyData.isPlaying ? '▶️ Currently playing' : '⏸️ Last played'}:`,
+            `"${spotifyData.songName}" by ${spotifyData.artistName}`
+        ],
+        magenta
+    ) : '';
 
     return `${asciiArt}
 
-${infoBoxes}
+${aboutBox}
+
 ${spotifyBox}
+
 ${cyan}Commands${reset}
 ${green}$ curl spicer.dev${reset}                           ${cyan}Get this page${reset}
 ${green}$ curl https://joshspicer.com/feed.xml${reset}      ${cyan}Get the RSS Feed${reset}
