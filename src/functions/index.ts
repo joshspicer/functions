@@ -3,6 +3,14 @@
 
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
+// Interface for the Spotify API response
+interface SpotifyResponse {
+    artistName: string;
+    isPlaying: boolean;
+    response: string;
+    songName: string;
+}
+
 export async function index(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Index function processed request for url "${request.url}"`);
 
@@ -19,14 +27,42 @@ export async function index(request: HttpRequest, context: InvocationContext): P
         };
     } else {
         // For terminal users, display ASCII art and information
-        const terminalOutput = generateTerminalOutput();
-        return {
-            status: 200,
-            headers: {
-                "Content-Type": "text/plain"
-            },
-            body: terminalOutput
-        };
+        try {
+            // Fetch Spotify data
+            const spotifyData = await fetchSpotifyData();
+            const terminalOutput = generateTerminalOutput(spotifyData);
+            return {
+                status: 200,
+                headers: {
+                    "Content-Type": "text/plain"
+                },
+                body: terminalOutput
+            };
+        } catch (error) {
+            // Fallback if Spotify API fails
+            context.log(`Error fetching Spotify data: ${error}`);
+            const terminalOutput = generateTerminalOutput();
+            return {
+                status: 200,
+                headers: {
+                    "Content-Type": "text/plain"
+                },
+                body: terminalOutput
+            };
+        }
+    }
+}
+
+async function fetchSpotifyData(): Promise<SpotifyResponse | null> {
+    try {
+        const response = await fetch('https://api.joshspicer.com/api/spotify');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch: ${response.status}`);
+        }
+        return await response.json() as SpotifyResponse;
+    } catch (error) {
+        console.error('Error fetching Spotify data:', error);
+        return null;
     }
 }
 
@@ -60,7 +96,7 @@ function isBrowserUserAgent(userAgent: string): boolean {
     return false;
 }
 
-function generateTerminalOutput(): string {
+function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
     // ANSI color codes
     const reset = "\x1b[0m";
     const cyan = "\x1b[36m";
@@ -80,12 +116,30 @@ function generateTerminalOutput(): string {
  |__/ 
 ${reset}`;
 
+    // Create formatted box with information
+    const infoBoxes = `
+${cyan}┌─About───────────────────────────────┐
+│                                     │
+│ 👋 I'm Josh Spicer                  │
+│                                     │
+└─────────────────────────────────────┘${reset}
+`;
+
+    // Spotify information
+    const spotifyBox = spotifyData ? `
+${magenta}┌─Now Playing on Spotify───────────┐
+│                                   │
+│ ${spotifyData.isPlaying ? '▶️ Currently playing' : '⏸️ Last played'}:            │
+│ "${spotifyData.songName}" by ${spotifyData.artistName}${' '.repeat(Math.max(0, 30 - (spotifyData.songName.length + spotifyData.artistName.length + 5)))}│
+│                                   │
+└───────────────────────────────────┘${reset}
+` : '';
+
     return `${asciiArt}
 
-${cyan}About:${reset}
-👋 I'm Josh Spicer, a software engineer at Microsoft.
-
-${cyan}Legend:${reset}
+${infoBoxes}
+${spotifyBox}
+${cyan}Commands${reset}
 ${green}$ curl spicer.dev${reset}                           ${cyan}Get this page${reset}
 ${green}$ curl https://joshspicer.com/feed.xml${reset}      ${cyan}Get the RSS Feed${reset}
 
