@@ -25,32 +25,22 @@ export async function index(request: HttpRequest, context: InvocationContext): P
                 "Location": "https://joshspicer.com"
             }
         };
-    } else {
-        // For terminal users, display ASCII art and information
-        try {
-            // Fetch Spotify data
-            const spotifyData = await fetchSpotifyData();
-            const terminalOutput = generateTerminalOutput(spotifyData);
-            return {
-                status: 200,
-                headers: {
-                    "Content-Type": "text/plain"
-                },
-                body: terminalOutput
-            };
-        } catch (error) {
-            // Fallback if Spotify API fails
-            context.log(`Error fetching Spotify data: ${error}`);
-            const terminalOutput = generateTerminalOutput();
-            return {
-                status: 200,
-                headers: {
-                    "Content-Type": "text/plain"
-                },
-                body: terminalOutput
-            };
-        }
     }
+
+    let spotifyData: SpotifyResponse | null = null;
+    try {
+        spotifyData = await fetchSpotifyData();
+    } catch (error) {
+        context.log(`Error fetching Spotify data: ${error}`);
+    }
+    const terminalOutput = generateTerminalOutput(spotifyData);
+    return {
+        status: 200,
+        headers: {
+            "Content-Type": "text/plain"
+        },
+        body: terminalOutput
+    };
 }
 
 async function fetchSpotifyData(): Promise<SpotifyResponse | null> {
@@ -69,29 +59,29 @@ async function fetchSpotifyData(): Promise<SpotifyResponse | null> {
 function isBrowserUserAgent(userAgent: string): boolean {
     // Check for common browser identifiers
     const browserIdentifiers = [
-        "Mozilla", "Chrome", "Safari", "Firefox", "Edge", "Opera", 
+        "Mozilla", "Chrome", "Safari", "Firefox", "Edge", "Opera",
         "MSIE", "Trident", "Gecko", "WebKit", "Blink"
     ];
-    
+
     // Check for common terminal/CLI tools
     const terminalIdentifiers = [
-        "curl", "wget", "HTTPie", "Postman", "insomnia", 
+        "curl", "wget", "HTTPie", "Postman", "insomnia",
         "python-requests", "Ruby", "Go-http-client", "node-fetch"
     ];
-    
+
     // If empty user agent, assume it's a terminal
     if (!userAgent) return false;
-    
+
     // If it has terminal identifiers, it's likely from terminal
     for (const term of terminalIdentifiers) {
         if (userAgent.toLowerCase().includes(term.toLowerCase())) return false;
     }
-    
+
     // If it has browser identifiers, it's likely a browser
     for (const browser of browserIdentifiers) {
         if (userAgent.toLowerCase().includes(browser.toLowerCase())) return true;
     }
-    
+
     // Default to terminal if we can't determine
     return false;
 }
@@ -103,7 +93,7 @@ function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
     const yellow = "\x1b[33m";
     const green = "\x1b[32m";
     const magenta = "\x1b[35m";
-    
+
     // ASCII art logo similar to the example in the image
     const asciiArt = `${yellow}
     _           _                             
