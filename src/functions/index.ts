@@ -87,65 +87,146 @@ function isBrowserUserAgent(userAgent: string): boolean {
 }
 
 function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
-    // ANSI color codes
+    // ANSI color codes and styles
     const reset = "\x1b[0m";
-    const cyan = "\x1b[36m";
-    const yellow = "\x1b[33m";
-    const green = "\x1b[32m";
-    const magenta = "\x1b[35m";
+    const bold = "\x1b[1m";
+    const dim = "\x1b[2m";
+    const italic = "\x1b[3m";
+    const underline = "\x1b[4m";
     
-    // ASCII art logo similar to the example in the image
-    const asciiArt = `${yellow}
-    _           _                             
-   (_)         | |                            
-    _  ___  ___| |__
-   | |/ _ \\/ __| '_ \\ 
-   | | (_) \\__ \\ | | |
-   | |\\___/|___/_| |_|
-  _/ |
- |__/ 
-${reset}`;
+    // Colors
+    const black = "\x1b[30m";
+    const red = "\x1b[31m";
+    const green = "\x1b[32m";
+    const yellow = "\x1b[33m";
+    const blue = "\x1b[34m";
+    const magenta = "\x1b[35m";
+    const cyan = "\x1b[36m";
+    const white = "\x1b[37m";
+    
+    // Bright colors
+    const brightBlack = "\x1b[90m";
+    const brightRed = "\x1b[91m";
+    const brightGreen = "\x1b[92m";
+    const brightYellow = "\x1b[93m";
+    const brightBlue = "\x1b[94m";
+    const brightMagenta = "\x1b[95m";
+    const brightCyan = "\x1b[96m";
+    const brightWhite = "\x1b[97m";
+    
+    // Background colors
+    const bgBlue = "\x1b[44m";
+    const bgMagenta = "\x1b[45m";
+    const bgCyan = "\x1b[46m";
+    
+    // Impressive ASCII art banner with gradient effect
+    const banner = `
+${brightCyan}╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║${reset}     ${brightMagenta}     ██╗ ██████╗ ███████╗██╗  ██╗    ███████╗██████╗ ██╗ ██████╗███████╗██████╗${reset}${brightCyan}    ║
+${brightCyan}║${reset}     ${brightMagenta}     ██║██╔═══██╗██╔════╝██║  ██║    ██╔════╝██╔══██╗██║██╔════╝██╔════╝██╔══██╗${reset}${brightCyan}   ║
+${brightCyan}║${reset}     ${brightBlue}     ██║██║   ██║███████╗███████║    ███████╗██████╔╝██║██║     █████╗  ██████╔╝${reset}${brightCyan}   ║
+${brightCyan}║${reset}     ${blue}██  ██║██║   ██║╚════██║██╔══██║    ╚════██║██╔═══╝ ██║██║     ██╔══╝  ██╔══██╗${reset}${brightCyan}   ║
+${brightCyan}║${reset}     ${cyan}╚█████╔╝╚██████╔╝███████║██║  ██║    ███████║██║     ██║╚██████╗███████╗██║  ██║${reset}${brightCyan}   ║
+${brightCyan}║${reset}      ${cyan}╚════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝    ╚══════╝╚═╝     ╚═╝ ╚═════╝╚══════╝╚═╝  ╚═╝${reset}${brightCyan}   ║
+║                                                                               ║
+║${reset}          ${brightWhite}${bold}⚡ Software Engineer  •  Cloud Architect  •  Creative Technologist ⚡${reset}${brightCyan}     ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝${reset}
+`;
 
-    // Helper function to create consistent boxes
-    function createBox(title: string, content: string[], color: string, width = 35): string {
-        const boxTop = `${color}┌─${title}${'─'.repeat(width - title.length - 2)}┐`;
-        const boxBottom = `└${'─'.repeat(width - 1)}┘${reset}`;
-        const paddedContent = content.map(line => 
-            `${color}│ ${line}${' '.repeat(Math.max(0, width - line.length - 2))}│${reset}`
-        );
+    // Helper function to create impressive boxes with double borders
+    function createFancyBox(title: string, content: string[], icon: string, colorTitle: string, colorBorder: string, width = 78): string {
+        const titleSection = ` ${icon} ${bold}${colorTitle}${title}${reset}${colorBorder} `;
+        const titleLength = title.length + icon.length + 2; // without ANSI codes
+        const boxTop = `${colorBorder}╔═${titleSection}${'═'.repeat(width - titleLength - 3)}╗`;
+        const boxBottom = `╚${'═'.repeat(width)}╝${reset}`;
+        const paddedContent = content.map(line => {
+            // Calculate actual display length (remove ANSI codes for length calculation)
+            const displayLength = line.replace(/\x1b\[[0-9;]*m/g, '').length;
+            return `${colorBorder}║${reset} ${line}${' '.repeat(Math.max(0, width - displayLength - 1))} ${colorBorder}║${reset}`;
+        });
         
         return [
             boxTop,
-            `${color}│${' '.repeat(width - 1)}│${reset}`,
             ...paddedContent,
-            `${color}│${' '.repeat(width - 1)}│${reset}`,
             boxBottom
         ].join('\n');
     }
 
-    // About box
-    const aboutBox = createBox("About", ["👋 I'm Josh Spicer"], cyan);
-    
-    // Spotify box
-    const spotifyBox = spotifyData ? createBox(
-        "Now Playing on Spotify",
-        [
-            `${spotifyData.isPlaying ? '▶️ Currently playing' : '⏸️ Last played'}:`,
-            `"${spotifyData.songName}" by ${spotifyData.artistName}`
-        ],
-        magenta
-    ) : '';
+    // Stats badges with visual flair
+    const badges = `${dim}${brightBlack}    ╭────────────────────────────────────────────────────────────────────────────╮
+    │${reset} ${bgCyan}${black}${bold} BLOG ${reset} ${bgMagenta}${white}${bold} OPEN SOURCE ${reset} ${bgBlue}${white}${bold} AZURE ${reset} ${brightGreen}●${reset} ${dim}Available for Consulting${reset} ${dim}${brightBlack}│
+    ╰────────────────────────────────────────────────────────────────────────────╯${reset}`;
 
-    return `${asciiArt}
+    // About section with enhanced styling
+    const aboutContent = [
+        `${brightWhite}${bold}Hey there! 👋 I'm Josh Spicer${reset}`,
+        ``,
+        `${brightYellow}▸${reset} ${white}Software Engineer passionate about cloud architecture & DevOps`,
+        `${brightYellow}▸${reset} ${white}Building scalable solutions on Azure & modern web technologies`,
+        `${brightYellow}▸${reset} ${white}Sharing knowledge through ${underline}https://joshspicer.com${reset}`,
+    ];
+    const aboutBox = createFancyBox("ABOUT", aboutContent, "👤", brightCyan, cyan, 78);
+    
+    // Spotify box with enhanced styling
+    let spotifyBox = '';
+    if (spotifyData) {
+        const playingIcon = spotifyData.isPlaying ? '🎵' : '⏸️';
+        const statusText = spotifyData.isPlaying ? 'Currently Vibing To' : 'Last Played';
+        const spotifyContent = [
+            `${brightGreen}${playingIcon} ${statusText}${reset}`,
+            ``,
+            `${brightWhite}${bold}♪ ${spotifyData.songName}${reset}`,
+            `${dim}${italic}by ${spotifyData.artistName}${reset}`,
+        ];
+        spotifyBox = '\n' + createFancyBox("NOW PLAYING", spotifyContent, "🎧", brightMagenta, magenta, 78);
+    }
+
+    // Links section with visual hierarchy
+    const linksContent = [
+        `${brightBlue}🌐 Website:${reset}     ${underline}https://joshspicer.com${reset}`,
+        `${brightMagenta}📝 Blog:${reset}        ${underline}https://joshspicer.com/blog${reset}`,
+        `${brightGreen}📡 RSS Feed:${reset}    ${dim}curl ${underline}https://joshspicer.com/feed.xml${reset}`,
+        `${brightCyan}💼 GitHub:${reset}      ${underline}https://github.com/joshspicer${reset}`,
+        `${brightYellow}📧 Email:${reset}       ${underline}hello@joshspicer.com${reset}`,
+    ];
+    const linksBox = createFancyBox("CONNECT", linksContent, "🔗", brightGreen, green, 78);
+
+    // Command examples with professional styling
+    const commandsSection = `
+${brightCyan}╔═══════════════════════════════════════════════════════════════════════════════╗
+║ ${bold}⚡ QUICK COMMANDS${reset}                                                            ${brightCyan}║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║${reset}                                                                               ${brightCyan}║
+║${reset}  ${brightGreen}▸ curl spicer.dev${reset}                                                          ${brightCyan}║
+║${reset}    ${dim}Show this page${reset}                                                             ${brightCyan}║
+║${reset}                                                                               ${brightCyan}║
+║${reset}  ${brightGreen}▸ curl https://joshspicer.com/feed.xml${reset}                                    ${brightCyan}║
+║${reset}    ${dim}Get latest blog posts via RSS${reset}                                             ${brightCyan}║
+║${reset}                                                                               ${brightCyan}║
+║${reset}  ${brightGreen}▸ curl -L joshspicer.com${reset}                                                   ${brightCyan}║
+║${reset}    ${dim}Visit the full website${reset}                                                    ${brightCyan}║
+║${reset}                                                                               ${brightCyan}║
+╚═══════════════════════════════════════════════════════════════════════════════╝${reset}`;
+
+    // Footer with subtle branding
+    const footer = `
+${dim}${brightBlack}    ────────────────────────────────────────────────────────────────────────────${reset}
+${dim}${italic}    Made with ❤️  and deployed on Azure Functions  •  © 2025 Josh Spicer${reset}
+${dim}${brightBlack}    ────────────────────────────────────────────────────────────────────────────${reset}
+`;
+
+    // Assemble the complete output
+    return `${banner}
+${badges}
 
 ${aboutBox}
-
 ${spotifyBox}
 
-${cyan}Commands${reset}
-${green}$ curl spicer.dev${reset}                           ${cyan}Get this page${reset}
-${green}$ curl https://joshspicer.com/feed.xml${reset}      ${cyan}Get the RSS Feed${reset}
-
+${linksBox}
+${commandsSection}
+${footer}
 `;
 }
 
