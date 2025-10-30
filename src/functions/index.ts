@@ -94,19 +94,16 @@ function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
     const italic = "\x1b[3m";
     const underline = "\x1b[4m";
     
-    // Colors
+    // Colors (only the ones we actually use)
     const black = "\x1b[30m";
-    const red = "\x1b[31m";
     const green = "\x1b[32m";
-    const yellow = "\x1b[33m";
     const blue = "\x1b[34m";
     const magenta = "\x1b[35m";
     const cyan = "\x1b[36m";
     const white = "\x1b[37m";
     
-    // Bright colors
+    // Bright colors (only the ones we actually use)
     const brightBlack = "\x1b[90m";
-    const brightRed = "\x1b[91m";
     const brightGreen = "\x1b[92m";
     const brightYellow = "\x1b[93m";
     const brightBlue = "\x1b[94m";
@@ -114,10 +111,13 @@ function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
     const brightCyan = "\x1b[96m";
     const brightWhite = "\x1b[97m";
     
-    // Background colors
+    // Background colors (only the ones we actually use)
     const bgBlue = "\x1b[44m";
     const bgMagenta = "\x1b[45m";
     const bgCyan = "\x1b[46m";
+    
+    // Helper regex for stripping ANSI codes (for length calculations)
+    const ansiRegex = /\x1b\[[0-9;]*m/g;
     
     // Impressive ASCII art banner with gradient effect
     const banner = `
@@ -143,7 +143,7 @@ ${brightCyan}║${reset}      ${cyan}╚════╝  ╚═════╝ �
         const boxBottom = `╚${'═'.repeat(width)}╝${reset}`;
         const paddedContent = content.map(line => {
             // Calculate actual display length (remove ANSI codes for length calculation)
-            const displayLength = line.replace(/\x1b\[[0-9;]*m/g, '').length;
+            const displayLength = line.replace(ansiRegex, '').length;
             return `${colorBorder}║${reset} ${line}${' '.repeat(Math.max(0, width - displayLength - 1))} ${colorBorder}║${reset}`;
         });
         
@@ -211,9 +211,10 @@ ${brightCyan}╔═════════════════════�
 ╚═══════════════════════════════════════════════════════════════════════════════╝${reset}`;
 
     // Footer with subtle branding
+    const currentYear = new Date().getFullYear();
     const footer = `
 ${dim}${brightBlack}    ────────────────────────────────────────────────────────────────────────────${reset}
-${dim}${italic}    Made with ❤️  and deployed on Azure Functions  •  © 2025 Josh Spicer${reset}
+${dim}${italic}    Made with ❤️  and deployed on Azure Functions  •  © ${currentYear} Josh Spicer${reset}
 ${dim}${brightBlack}    ────────────────────────────────────────────────────────────────────────────${reset}
 `;
 
