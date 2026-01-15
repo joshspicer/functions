@@ -1,0 +1,44 @@
+name: Test Index Output
+
+on:
+  push:
+    paths:
+      - 'src/lib/indexHelpers.ts'
+      - 'src/functions/index.ts'
+      - 'scripts/test-index.js'
+  pull_request:
+    paths:
+      - 'src/lib/indexHelpers.ts'
+      - 'src/functions/index.ts'
+      - 'scripts/test-index.js'
+  workflow_dispatch:
+
+jobs:
+  test-and-display:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Run test script and capture output
+        run: |
+          echo "## Terminal Output Preview" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          node scripts/test-index.js >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          # Also print to console
+          node scripts/test-index.js
