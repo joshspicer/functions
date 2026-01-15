@@ -191,19 +191,7 @@ function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
         `  ${dim}See what I'm listening to (JSON)${reset}`,
     ], green);
 
-    // Fun footer with random tech quote/tip
-    const quotes = [
-        "💡 Tip: This page looks even better with a dark terminal theme!",
-        "🎨 Pro tip: Try running this with 'curl -L spicer.dev | less -R' for colors!",
-        "✨ Fun fact: This is an Azure Function running TypeScript!",
-        "🔧 DevOps: Deployed automatically via GitHub Actions",
-        "🌟 Thanks for visiting! Feel free to reach out anytime.",
-    ];
-    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-
     const footer = `
-${dim}${'─'.repeat(73)}${reset}
-${cyan}${randomQuote}${reset}
 ${dim}${'─'.repeat(73)}${reset}
 `;
 
