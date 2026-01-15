@@ -49,10 +49,15 @@ console.log("Contains 'Test Song':", outputWithSpotify.includes('Test Song') ? "
 console.log("Contains 'Test Artist':", outputWithSpotify.includes('Test Artist') ? "✓" : "✗");
 console.log("Contains 'Currently playing':", outputWithSpotify.includes('Currently playing') ? "✓" : "✗");
 
-// Test 4: Display sample output
-console.log("\n4. Sample terminal output");
+// Test 4: Display sample output without Spotify
+console.log("\n4. Sample terminal output (no Spotify data)");
 console.log("-".repeat(50));
 console.log(outputNoSpotify);
+
+// Test 5: Display sample output with Spotify
+console.log("\n5. Sample terminal output (with Spotify data)");
+console.log("-".repeat(50));
+console.log(outputWithSpotify);
 
 console.log("=" .repeat(50));
 console.log("All tests completed!\n");
