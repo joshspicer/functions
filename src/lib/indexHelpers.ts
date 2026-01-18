@@ -114,10 +114,10 @@ ${reset}`;
 
     // Links section
     const linksContent = [
-        `${brightBlue}[web]${reset}   https://joshspicer.com`,
+        `${brightBlue}[web]${reset}       https://joshspicer.com`,
         `${white}[github]${reset}    https://github.com/joshspicer`,
         `${brightCyan}[linkedin]${reset}  https://linkedin.com/in/joshspicer`,
-        `${yellow}[mail]${reset}     hello@joshspicer.com`
+        `${yellow}[mail]${reset}       hello@joshspicer.com`
     ];
     const linksSection = createSection("Connect", linksContent, blue);
 
@@ -125,14 +125,13 @@ ${reset}`;
     let spotifySection = '';
     if (spotifyData) {
         const statusIcon = spotifyData.isPlaying ? '▶️' : '⏸️';
-        const statusText = spotifyData.isPlaying ? 'Currently playing' : 'Last played';
+        const statusText = spotifyData.isPlaying ? 'playing on Spotify' : 'last played on Spotify';
         const spotifyContent = [
-            `${statusIcon} ${bold}${statusText}${reset}`,
             ``,
             `${brightGreen}♫${reset} ${bold}"${spotifyData.songName}"${reset}`,
             `   ${dim}by${reset} ${spotifyData.artistName}`
         ];
-        spotifySection = '\n' + createSection("🎵 Now on Spotify", spotifyContent, magenta);
+        spotifySection = '\n' + createSection(`🎵 Now ${statusText}`, spotifyContent, magenta);
     }
 
     // Commands section (keeping original design style)
