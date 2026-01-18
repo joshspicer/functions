@@ -114,10 +114,10 @@ ${reset}`;
 
     // Links section
     const linksContent = [
-        `${brightBlue}Website:${reset}   https://joshspicer.com`,
-        `${white}GitHub:${reset}    https://github.com/joshspicer`,
-        `${brightCyan}LinkedIn:${reset}  https://linkedin.com/in/joshspicer`,
-        `${yellow}Email:${reset}     hello@joshspicer.com`
+        `${brightBlue}[web]${reset}   https://joshspicer.com`,
+        `${white}[github]${reset}    https://github.com/joshspicer`,
+        `${brightCyan}[linkedin]${reset}  https://linkedin.com/in/joshspicer`,
+        `${yellow}[mail]${reset}     hello@joshspicer.com`
     ];
     const linksSection = createSection("Connect", linksContent, blue);
 
