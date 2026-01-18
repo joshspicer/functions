@@ -81,21 +81,14 @@ export function generateTerminalOutput(spotifyData?: SpotifyResponse | null): st
  ╚════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝    ╚══════╝╚═╝     ╚═╝ ╚═════╝╚══════╝╚═╝  ╚═╝
 ${reset}`;
 
-    // Helper function to create consistent boxes with better visuals
-    function createBox(title: string, content: string[], color: string, width = 70): string {
-        const boxTop = `${color}${bold}╔═${title}${'═'.repeat(width - title.length - 2)}╗${reset}`;
-        const boxBottom = `${color}╚${'═'.repeat(width - 1)}╝${reset}`;
-        const paddedContent = content.map(line => {
-            // Strip ANSI codes to measure actual length
-            const lineLength = line.replace(/\x1b\[[0-9;]*m/g, '').length;
-            const padding = Math.max(0, width - lineLength - 3);
-            return `${color}║${reset} ${line}${' '.repeat(padding)}${color}║${reset}`;
-        });
+    // Helper function to create section with header line (no side/bottom borders)
+    function createSection(title: string, content: string[], color: string, width = 70): string {
+        const headerLine = `${color}${bold}${title}${'─'.repeat(width - title.length)}${reset}`;
+        const paddedContent = content.map(line => ` ${line}`);
 
         return [
-            boxTop,
-            ...paddedContent,
-            boxBottom
+            headerLine,
+            ...paddedContent
         ].join('\n');
     }
 
@@ -117,19 +110,19 @@ ${reset}`;
         ``,
         `${brightGreen}☕️${reset} I'm learning Italian (ask me how to order a cappuccino)`
     ];
-    const aboutBox = createBox("About Me", aboutContent, cyan);
+    const aboutSection = createSection("About Me", aboutContent, cyan);
 
     // Links section
     const linksContent = [
-        `${brightBlue}🌐 Website:${reset}   https://joshspicer.com`,
-        `${white}🐙 GitHub:${reset}    https://github.com/joshspicer`,
-        `${brightCyan}💼 LinkedIn:${reset}  https://linkedin.com/in/joshspicer`,
-        `${yellow}📧 Email:${reset}     hello@joshspicer.com`
+        `${brightBlue}Website:${reset}   https://joshspicer.com`,
+        `${white}GitHub:${reset}    https://github.com/joshspicer`,
+        `${brightCyan}LinkedIn:${reset}  https://linkedin.com/in/joshspicer`,
+        `${yellow}Email:${reset}     hello@joshspicer.com`
     ];
-    const linksBox = createBox("Connect", linksContent, blue);
+    const linksSection = createSection("Connect", linksContent, blue);
 
     // Spotify section with enhanced styling
-    let spotifyBox = '';
+    let spotifySection = '';
     if (spotifyData) {
         const statusIcon = spotifyData.isPlaying ? '▶️' : '⏸️';
         const statusText = spotifyData.isPlaying ? 'Currently playing' : 'Last played';
@@ -139,7 +132,7 @@ ${reset}`;
             `${brightGreen}♫${reset} ${bold}"${spotifyData.songName}"${reset}`,
             `   ${dim}by${reset} ${spotifyData.artistName}`
         ];
-        spotifyBox = '\n' + createBox("🎵 Now on Spotify", spotifyContent, magenta);
+        spotifySection = '\n' + createSection("🎵 Now on Spotify", spotifyContent, magenta);
     }
 
     // Commands section (keeping original design style)
@@ -154,10 +147,10 @@ ${asciiArt}
 
 ${greeting}
 
-${aboutBox}
+${aboutSection}
 
-${linksBox}
-${spotifyBox}
+${linksSection}
+${spotifySection}
 
 ${commands}
 `;
