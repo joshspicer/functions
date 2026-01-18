@@ -110,7 +110,7 @@ ${reset}`;
     const aboutContent = [
         `${brightGreen}●${reset} ${bold}Software Engineer${reset} building cool things`,
         `${brightGreen}●${reset} Passionate about ${cyan}cloud${reset}, ${magenta}IoT${reset}, and ${blue}automation${reset}`,
-        `${brightGreen}●${reset} Based in ${red}♥${reset} Boston, MA`
+        `${brightGreen}●${reset} Based in ${red}♥${reset} Seattle, WA`
     ];
     const aboutBox = createBox("About Me", aboutContent, cyan);
 
@@ -137,38 +137,11 @@ ${reset}`;
         spotifyBox = '\n' + createBox("🎵 Now on Spotify", spotifyContent, magenta);
     }
 
-    // API endpoints section
-    const endpointsContent = [
-        `${green}GET${reset}  ${dim}/${reset}                  ${dim}→${reset} This page`,
-        `${green}GET${reset}  ${dim}/api/heartbox${reset}      ${dim}→${reset} IoT heartbeat data`,
-        `${green}GET${reset}  ${dim}/feed.xml${reset}          ${dim}→${reset} Blog RSS feed (on main site)`
-    ];
-    const endpointsBox = createBox("📡 Available Endpoints", endpointsContent, green);
-
-    // Fun commands/examples section
-    const examplesContent = [
-        `${brightYellow}$${reset} curl spicer.dev`,
-        `${brightYellow}$${reset} curl -H "Accept: application/json" spicer.dev/api/heartbox`,
-        `${brightYellow}$${reset} curl https://joshspicer.com/feed.xml ${dim}| grep '<title>'${reset}`,
-        `${brightYellow}$${reset} curl -L joshspicer.com  ${dim}# Main website${reset}`
-    ];
-    const examplesBox = createBox("💡 Try These Commands", examplesContent, yellow);
-
-    // Tech tip
-    const tips = [
-        "Did you know? Azure Functions can scale automatically based on demand!",
-        "Pro tip: Use 'curl -i' to see HTTP headers in the response.",
-        "Fun fact: This page detects your user agent and redirects browsers to the main site.",
-        "Tip: Add '-L' to curl to automatically follow redirects.",
-        "Did you know? You can pipe curl output through 'jq' for pretty JSON formatting!"
-    ];
-    const randomTip = tips[Math.floor(Math.random() * tips.length)];
-
-    // Footer with tip
-    const footer = `
-${dim}─────────────────────────────────────────────────────────────────────${reset}
-${brightCyan}💡 ${randomTip}${reset}
-${dim}─────────────────────────────────────────────────────────────────────${reset}
+    // Commands section (keeping original design style)
+    const commands = `
+${cyan}Commands${reset}
+${green}$ curl spicer.dev${reset}                           ${cyan}Get this page${reset}
+${green}$ curl https://joshspicer.com/feed.xml${reset}      ${cyan}Get the RSS Feed${reset}
 `;
 
     return `
@@ -181,9 +154,6 @@ ${aboutBox}
 ${linksBox}
 ${spotifyBox}
 
-${endpointsBox}
-
-${examplesBox}
-${footer}
+${commands}
 `;
 }
