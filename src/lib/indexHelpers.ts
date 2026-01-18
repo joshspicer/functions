@@ -56,62 +56,109 @@ export function isBrowserUserAgent(userAgent: string): boolean {
 export function generateTerminalOutput(spotifyData?: SpotifyResponse | null): string {
     // ANSI color codes
     const reset = "\x1b[0m";
+    const bold = "\x1b[1m";
+    const dim = "\x1b[2m";
     const cyan = "\x1b[36m";
+    const brightCyan = "\x1b[96m";
     const yellow = "\x1b[33m";
+    const brightYellow = "\x1b[93m";
     const green = "\x1b[32m";
+    const brightGreen = "\x1b[92m";
     const magenta = "\x1b[35m";
+    const brightMagenta = "\x1b[95m";
+    const blue = "\x1b[34m";
+    const brightBlue = "\x1b[94m";
+    const red = "\x1b[31m";
+    const white = "\x1b[37m";
 
-    // ASCII art logo similar to the example in the image
-    const asciiArt = `${yellow}
-    _           _
-   (_)         | |
-    _  ___  ___| |__
-   | |/ _ \\/ __| '_ \\
-   | | (_) \\__ \\ | | |
-   | |\\___/|___/_| |_|
-  _/ |
- |__/
+    // Enhanced ASCII art with better styling
+    const asciiArt = `${brightYellow}${bold}
+     ██╗ ██████╗ ███████╗██╗  ██╗    ███████╗██████╗ ██╗ ██████╗███████╗██████╗
+     ██║██╔═══██╗██╔════╝██║  ██║    ██╔════╝██╔══██╗██║██╔════╝██╔════╝██╔══██╗
+     ██║██║   ██║███████╗███████║    ███████╗██████╔╝██║██║     █████╗  ██████╔╝
+██   ██║██║   ██║╚════██║██╔══██║    ╚════██║██╔═══╝ ██║██║     ██╔══╝  ██╔══██╗
+╚█████╔╝╚██████╔╝███████║██║  ██║    ███████║██║     ██║╚██████╗███████╗██║  ██║
+ ╚════╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝    ╚══════╝╚═╝     ╚═╝ ╚═════╝╚══════╝╚═╝  ╚═╝
 ${reset}`;
 
-    // Helper function to create consistent boxes
-    function createBox(title: string, content: string[], color: string, width = 35): string {
-        const boxTop = `${color}┌─${title}${'─'.repeat(width - title.length - 2)}┐`;
-        const boxBottom = `└${'─'.repeat(width - 1)}┘${reset}`;
-        const paddedContent = content.map(line =>
-            `${color}│ ${line}${' '.repeat(Math.max(0, width - line.length - 2))}│${reset}`
-        );
+    // Helper function to create consistent boxes with better visuals
+    function createBox(title: string, content: string[], color: string, width = 70): string {
+        const boxTop = `${color}${bold}╔═${title}${'═'.repeat(width - title.length - 2)}╗${reset}`;
+        const boxBottom = `${color}╚${'═'.repeat(width - 1)}╝${reset}`;
+        const paddedContent = content.map(line => {
+            // Strip ANSI codes to measure actual length
+            const lineLength = line.replace(/\x1b\[[0-9;]*m/g, '').length;
+            const padding = Math.max(0, width - lineLength - 3);
+            return `${color}║${reset} ${line}${' '.repeat(padding)}${color}║${reset}`;
+        });
 
         return [
             boxTop,
-            `${color}│${' '.repeat(width - 1)}│${reset}`,
             ...paddedContent,
-            `${color}│${' '.repeat(width - 1)}│${reset}`,
             boxBottom
         ].join('\n');
     }
 
-    // About box
-    const aboutBox = createBox("About", ["👋 I'm Josh Spicer"], cyan);
+    // Get current time
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
 
-    // Spotify box
-    const spotifyBox = spotifyData ? createBox(
-        "Now Playing on Spotify",
-        [
-            `${spotifyData.isPlaying ? '▶️ Currently playing' : '⏸️ Last played'}:`,
-            `"${spotifyData.songName}" by ${spotifyData.artistName}`
-        ],
-        magenta
-    ) : '';
+    // Header with greeting and time
+    const greeting = `${brightCyan}${bold}👋 Welcome!${reset} ${dim}${timeStr}${reset}`;
 
-    return `${asciiArt}
+    // About section mirroring joshspicer.com/whoami
+    const aboutContent = [
+        `${brightGreen}👋${reset} Hey there - I'm Josh.`,
+        ``,
+        `${brightGreen}📍${reset} I work at Microsoft on the VS Code Team. Previously GitHub Codespaces.`,
+        ``,
+        `${brightGreen}🎓${reset} I have a Master of Science in Cybersecurity and Bachelor of Science`,
+        `   in Computer Science`,
+        ``,
+        `${brightGreen}☕️${reset} I'm learning Italian (ask me how to order a cappuccino)`
+    ];
+    const aboutBox = createBox("About Me", aboutContent, cyan);
 
-${aboutBox}
+    // Links section
+    const linksContent = [
+        `${brightBlue}🌐 Website:${reset}   https://joshspicer.com`,
+        `${white}🐙 GitHub:${reset}    https://github.com/joshspicer`,
+        `${brightCyan}💼 LinkedIn:${reset}  https://linkedin.com/in/joshspicer`,
+        `${yellow}📧 Email:${reset}     hello@joshspicer.com`
+    ];
+    const linksBox = createBox("Connect", linksContent, blue);
 
-${spotifyBox}
+    // Spotify section with enhanced styling
+    let spotifyBox = '';
+    if (spotifyData) {
+        const statusIcon = spotifyData.isPlaying ? '▶️' : '⏸️';
+        const statusText = spotifyData.isPlaying ? 'Currently playing' : 'Last played';
+        const spotifyContent = [
+            `${statusIcon} ${bold}${statusText}${reset}`,
+            ``,
+            `${brightGreen}♫${reset} ${bold}"${spotifyData.songName}"${reset}`,
+            `   ${dim}by${reset} ${spotifyData.artistName}`
+        ];
+        spotifyBox = '\n' + createBox("🎵 Now on Spotify", spotifyContent, magenta);
+    }
 
+    // Commands section (keeping original design style)
+    const commands = `
 ${cyan}Commands${reset}
 ${green}$ curl spicer.dev${reset}                           ${cyan}Get this page${reset}
 ${green}$ curl https://joshspicer.com/feed.xml${reset}      ${cyan}Get the RSS Feed${reset}
+`;
 
+    return `
+${asciiArt}
+
+${greeting}
+
+${aboutBox}
+
+${linksBox}
+${spotifyBox}
+
+${commands}
 `;
 }
