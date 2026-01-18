@@ -106,11 +106,16 @@ ${reset}`;
     // Header with greeting and time
     const greeting = `${brightCyan}${bold}👋 Welcome!${reset} ${dim}${timeStr}${reset}`;
 
-    // About section with more details
+    // About section mirroring joshspicer.com/whoami
     const aboutContent = [
-        `${brightGreen}●${reset} ${bold}Software Engineer${reset} building cool things`,
-        `${brightGreen}●${reset} Passionate about ${cyan}cloud${reset}, ${magenta}IoT${reset}, and ${blue}automation${reset}`,
-        `${brightGreen}●${reset} Based in ${red}♥${reset} Seattle, WA`
+        `${brightGreen}👋${reset} Hey there - I'm Josh.`,
+        ``,
+        `${brightGreen}📍${reset} I work at Microsoft on the VS Code Team. Previously GitHub Codespaces.`,
+        ``,
+        `${brightGreen}🎓${reset} I have a Master of Science in Cybersecurity and Bachelor of Science`,
+        `   in Computer Science`,
+        ``,
+        `${brightGreen}☕️${reset} I'm learning Italian (ask me how to order a cappuccino)`
     ];
     const aboutBox = createBox("About Me", aboutContent, cyan);
 
