@@ -94,10 +94,10 @@ ${reset}`;
 
     // Get current time
     const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+    // const timeStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
 
     // Header with greeting and time
-    const greeting = `${brightCyan}${bold}👋 Welcome!${reset} ${dim}${timeStr}${reset}`;
+    const greeting = `${brightCyan}${bold}👋 Welcome!${reset}`;
 
     // About section mirroring joshspicer.com/whoami
     const aboutContent = [
