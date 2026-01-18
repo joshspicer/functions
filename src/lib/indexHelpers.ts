@@ -131,7 +131,7 @@ ${reset}`;
             `${brightGreen}♫${reset} ${bold}"${spotifyData.songName}"${reset}`,
             `   ${dim}by${reset} ${spotifyData.artistName}`
         ];
-        spotifySection = '\n' + createSection(`🎵 ${statusText}`, spotifyContent, magenta);
+        spotifySection = '\n' + createSection(`${statusText}`, spotifyContent, magenta);
     }
 
     // Commands section (keeping original design style)
