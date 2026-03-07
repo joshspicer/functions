@@ -108,7 +108,8 @@ ${reset}`;
         `${brightGreen}🎓${reset} I have a Master of Science in Cybersecurity and Bachelor of Science`,
         `   in Computer Science`,
         ``,
-        `${brightGreen}☕️${reset} I'm learning Italian (ask me how to order a cappuccino)`
+        `${brightGreen}⚡️${reset} In my free time I enjoy traveling, tinkering on my homelab,`, 
+        `   practicing piano, studying Italian, and flying airplanes ✈️`
     ];
     const aboutSection = createSection("About Me", aboutContent, cyan);
 
